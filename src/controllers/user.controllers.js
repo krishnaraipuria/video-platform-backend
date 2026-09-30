@@ -4,6 +4,21 @@ import { User } from "../models/user.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
+
+const generateAccessAndrefreshAccess= async(userId)=>{
+        try{
+            const user=await User.findById(userId)
+            const accesstoken=user.generateAccessToken()
+            const refreshtoken=user.generateRefreshToken()
+
+            user.refreshtoken=refreshtoken
+            await user.save({validateBeforeSave: false})
+
+            return {accesstoken,refreshtoken}
+        }catch(error){
+            throw new ApiError(500, "something went worng while generating refresh and access token")
+        }
+    }
    //get user details from frontend
    //checks not missing values or unique(by email,name);
    //checks for image and upload cloudinary
@@ -25,9 +40,13 @@ const registerUser = asyneHandler( async (req, res) =>{
     if(Isexisteduser){
         throw new ApiError(409, "User with email or username already exist")
     }
-    console.log(req.fil)
    const avatarlocalPath=req.files?.avatar[0]?.path
-   const coverImagelocalpath=req.files?.coverImage[0]?.path;
+   //const coverImagelocalpath=req.files?.coverImage[0]?.path;
+
+   let coverImagelocalpath;
+   if(req.files && Array.isArray(req.files.coverImage)  && req.files.coverImage.length>0){
+    coverImagelocalpath=req.files.coverImage[0].path
+   }
 
    if(!avatarlocalPath)
     {
@@ -59,4 +78,56 @@ const registerUser = asyneHandler( async (req, res) =>{
         new ApiResponse(200, createdUser, "User registered successfully")
     )
 })
-export {registerUser}
+
+// user/loginUser;
+        // user sends details for login;
+        //check if user or email are same and exist;
+        //password check;
+        // access,refresh token,and in cookie;
+const loginUser=asyneHandler( async (req,res)=>{
+    const {username,email,password}=req.body;
+    if(!username || !email){
+        throw new ApiError(400,"username or password is required");
+    }
+    
+    const user = await User.findOne({
+        $or: [{username}, {email}]
+    })
+
+    if(!user){
+        throw new ApiError(404,"User does not exist")
+    }
+
+    const ispasswordvalid=await user.isPasswordCorrect(password);
+
+    if(!ispasswordvalid){
+        throw new ApiError(401,"Password incorrect!!")
+    }
+
+    //send in cookies
+    const {accesstoken,refreshtoken}=await generateAccessAndrefreshAccess(user._id)
+
+    const loggedInuser= await User.findById(user._id).select(
+        "-password -refreshToken"
+    )
+
+    const options ={
+        httpOnly: true,
+        secure:true
+    }
+    return res.status(200).cookie("accesstoken",accesstoken,options)
+    .cookie("refreshtoken",refreshtoken,options)
+    .json(
+        new ApiResponse(200,{
+            user:loggedInuser,accesstoken,refreshtoken
+
+        },
+            "User logged in Successfully!!"
+        )
+    )
+})
+
+const logoutUser= asyneHandler(async(req,res)=>{
+
+})
+export {registerUser,loginUser}
