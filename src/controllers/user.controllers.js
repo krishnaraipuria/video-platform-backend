@@ -11,7 +11,7 @@ const generateAccessAndrefreshAccess= async(userId)=>{
             const accesstoken=await user.generateAccessToken()
             const refreshtoken=await user.generateRefreshToken()
 
-            user.refreshtoken=refreshtoken
+            user.refreshToken=refreshtoken
             await user.save({validateBeforeSave: false})
 
             return {accesstoken,refreshtoken}
@@ -154,15 +154,15 @@ const logoutUser= asyneHandler(async(req,res)=>{
 })
 
 const refreshAccessToken = asyneHandler(async(req,res)=>{
-    const incomingRefreshToken=req.cookie.refreshtoken || req.cookie.refreshtoken
-    if(incomingRefreshToken){
+    const incomingRefreshToken=req.cookies.refreshtoken || req.body.refreshtoken
+    // console.log(incomingRefreshToken)
+    if(!incomingRefreshToken){
         throw new ApiError(401,"unauthorized request")
     }
     try {
         const decodedtoken=jwt.verify(incomingRefreshToken,process.env.REFRESH_TOKEN_SECRET)
     
         const user=await User.findById(decodedtoken?._id)
-    
         if(!user){
             throw new ApiError(401,"Invalid refresh token!!")
         }

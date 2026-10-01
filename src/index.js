@@ -5,6 +5,8 @@ import { app } from "./app.js";
 dotenv.config({
     path: './env'
 })
+import dns from "dns";
+//
 
 connectdb()
 .then(()=>{
