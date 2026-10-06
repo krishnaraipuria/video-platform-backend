@@ -3,6 +3,6 @@ import {asyneHandler} from "../utils/asynceHandler.js"
 
 
 const healthcheck = asyneHandler(async (req, res) => {
-   return res.status(200).json(ApiResponse(200, {status: "OK"}, "Healthcheck successful"))
+   return res.status(200).json(new ApiResponse(200, {status: "OK"}, "Healthcheck successful"))
 })
 export {healthcheck}
