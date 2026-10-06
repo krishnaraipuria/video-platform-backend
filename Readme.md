@@ -2,6 +2,8 @@
 
 A production-style backend for a video-sharing platform built with **Node.js, Express.js, MongoDB, Mongoose, JWT, Multer, and Cloudinary**.
 
+> **Note:** This backend is hosted on Render's free tier, so the first request after inactivity may take about a minute to wake up.
+
 > **Live Backend:** https://video-platform-backend-z1p6.onrender.com  
 > **API Base URL:** https://video-platform-backend-z1p6.onrender.com/api/v1  
 > **Postman API Collection & Documentation — Coming Soon**
