@@ -68,7 +68,7 @@ const addvideotoPlaylist=asyneHandler(async(req,res)=>{
     }
     const addvideo=await Playlists.findByIdAndUpdate(
         {
-            playlistId,
+            _id:playlistId,
             owner:user
         },
         {
@@ -104,7 +104,7 @@ const removevideofromPlaylist=asyneHandler(async(req,res)=>{
     }
     const removevideo=await Playlists.findByIdAndUpdate(
         {
-            playlistId,
+            _id:playlistId,
             owner:user
         },
         {
@@ -155,9 +155,9 @@ const updatePlaylist=asyneHandler(async(req,res)=>{
     if(!name && !description){
         throw new ApiError(400,"Name or description is required")
     }
-    const playlist=await PlayLists.findByIdAndUpdate(
+    const playlist=await Playlists.findByIdAndUpdate(
         {
-            playlistId,
+            _id:playlistId,
             owner:user
         },
         {
