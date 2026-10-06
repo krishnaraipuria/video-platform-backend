@@ -2,6 +2,10 @@
 
 A production-style backend for a video-sharing platform built with **Node.js, Express.js, MongoDB, Mongoose, JWT, Multer, and Cloudinary**.
 
+> **Live Backend:** https://video-platform-backend-z1p6.onrender.com  
+> **API Base URL:** https://video-platform-backend-z1p6.onrender.com/api/v1  
+> **Postman API Collection & Documentation — Coming Soon**
+
 ## Features
 
 - **JWT Authentication** — access and refresh token based authentication with protected routes
