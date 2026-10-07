@@ -49,7 +49,7 @@ const addcomment=asyneHandler(async(req,res)=>{
         throw new ApiError(400,"failed to add comment!!!")
     }
     return res.status(200).json(
-        200,addcomm,"ADD comment successfully!!"
+        new ApiResponse(200,addcomm,"comment added successfully!!!")
     )
 })
 
