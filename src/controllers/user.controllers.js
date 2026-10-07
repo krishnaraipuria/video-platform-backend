@@ -1,10 +1,11 @@
 import { asyneHandler } from "../utils/asynceHandler.js";
 import { ApiError } from "../utils/APiError.js";
 import { User } from "../models/user.models.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { uploadOnCloudinary} from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
+import { deleteFromCloudinary } from "../utils/cloudinary.js";
 
 const generateAccessAndrefreshAccess= async(userId)=>{
         try{
@@ -250,6 +251,7 @@ const updateuserAvater=asyneHandler(async(req,res)=>{
     if(!avater.url){
         throw new ApiError(400,"Error while uploading while avater!!!")
     }
+    await deleteFromCloudinary(req.user?.avatar,"image")
     const user=await User.findByIdAndUpdate(
         req.user?._id,
         {
@@ -276,6 +278,7 @@ const updateusercoverimage=asyneHandler(async(req,res)=>{
     if(!coverimage.url){
         throw new ApiError(400,"Error while uploading while coverimage!!!")
     }
+    await deleteFromCloudinary(req.user?.coverImage,"image")
     const user=await User.findByIdAndUpdate(
         req.user?._id,
         {
