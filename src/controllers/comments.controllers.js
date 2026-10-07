@@ -23,6 +23,7 @@ const getvideocomments=asyneHandler(async(req,res)=>{
 const addcomment=asyneHandler(async(req,res)=>{
     const {videoId}=req.params
     const {content}=req.body
+    // console.log("videoId",videoId)
     const user=req.user?._id
     if(!user){
         throw new ApiError(401,"Unauthorized access");
@@ -36,7 +37,7 @@ const addcomment=asyneHandler(async(req,res)=>{
     if(!content|| content.trim()===""){
         throw new ApiError(400,"invalid comment")
     }
-    const findvideo=await Video.findById({videoId})
+    const findvideo=await Video.findById(videoId)
     if(!findvideo){
         throw new ApiError(400,"Video not found!!")
     }
