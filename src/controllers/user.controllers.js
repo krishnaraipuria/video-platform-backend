@@ -377,14 +377,14 @@ const getWatchHistory=asyneHandler(async(req,res)=>{
         },
         {
             $lookup:{
-                from:"Video",
+                from:"videos",
                 localField:"watchHistory",
                 foreignField:"_id",
                 as:"watchHistory",
                 pipeline:[
                     {
                         $lookup:{
-                            from:"User",
+                            from:"users",
                             localField:"owner",
                             foreignField:"_id",
                             as:"owner",
