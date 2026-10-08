@@ -9,7 +9,7 @@ import { deleteFromCloudinary } from "../utils/cloudinary.js"
 
 
 const getallvideos=asyneHandler(async(req,res)=>{
-    const {page=1, limit=10, query,sortBy,userId}=req.query
+    const {page=1, limit=10, query,sortBy,sortType,userId}=req.query
 
     const pipeline=[]
     const matchStage={isPublished:true}
@@ -25,7 +25,7 @@ const getallvideos=asyneHandler(async(req,res)=>{
     pipeline.push({$match: matchStage})
     if(sortBy){
         const sortStage={}
-        sortStage[sortBy]== sortType==="asc" ? 1 : -1
+        sortStage[sortBy]=sortType==="asc" ? 1 : -1
         pipeline.push({$sort:sortStage})
     }
     else{
@@ -50,7 +50,7 @@ const getallvideos=asyneHandler(async(req,res)=>{
             }
         },
         {
-            $unwind:$ownerDetails
+            $unwind:"$ownerDetails"
         }
     )
     const videosAggregate=Video.aggregate(pipeline)
@@ -58,7 +58,7 @@ const getallvideos=asyneHandler(async(req,res)=>{
         page:parseInt(page,10),
         limit:parseInt(limit,10),
     }
-    const paginatedVideos=await videosAggregate.aggregatePaginate(options)
+    const paginatedVideos=await Video.aggregatePaginate(videosAggregate, options)
     return res.status(200).json(
         new ApiResponse(200,paginatedVideos,"Videos fetched successfully")
     )
@@ -119,13 +119,14 @@ const getvideoById=asyneHandler(async(req,res)=>{
         throw new ApiError(403,"Video is not published")
     }
 
-    await Video.findByIdAndUpdate(videoId,{$inc:{views:1}},{new:true})
+    const updatedvideo=await Video.findByIdAndUpdate(videoId,{$inc:{views:1}},{new:true})
+    // console.log("views:", updatedvideo?.views);
     const user=req.user?._id
     if(user){
         await User.findByIdAndUpdate(user,{$addToSet:{watchHistory:videoId}},{new:true})
     }
     return res.status(200).json(
-        new ApiResponse(200,video,"Video fetched successfully")
+        new ApiResponse(200,updatedvideo,"Video fetched successfully")
     )
 })
 
@@ -205,4 +206,5 @@ const publishstatus=asyneHandler(async(req,res)=>{
         new ApiResponse(200,video,`Video ${video.isPublished ? 'published' : 'unpublished'} successfully`)
     )
 })
+
 export {getallvideos,publishvideo,getvideoById,updatevideo,deletevideo,publishstatus}
