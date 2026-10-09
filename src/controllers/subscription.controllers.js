@@ -3,12 +3,17 @@ import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyneHandler} from "../utils/asynceHandler.js"
 import mongoose,{isValidObjectId} from "mongoose"
 import { Subscription } from "../models/subscription.models.js";
+import { User } from "../models/user.models.js";
 
 const toggleSubcription =asyneHandler(async(req,res)=>{
     const {channelId}=req.params
     const user=req.user._id;
     if(!channelId || !isValidObjectId(channelId)){
         throw new ApiError(400,"Invalid Channel Id!!!")
+    }
+    const isexist=await User.findById(channelId)
+    if(!isexist){
+        throw new ApiError(400, "Channel does not exist!!")
     }
     const IsSubscribed=await Subscription.findOne(
         {
@@ -45,6 +50,10 @@ const getUserChannelSubcribers=asyneHandler(async(req,res)=>{
     if(!subscriberId || !isValidObjectId(subscriberId)){
         throw new ApiError(400,"Invalid Channel Id!!!")
     }
+    const isexist=await User.findById(subscriberId)
+    if(!isexist){
+        throw new ApiError(400, "Channel does not exist!!")
+    }
     const UserSubcribers=await Subscription.find(
         {
             channel:subscriberId,
@@ -65,6 +74,11 @@ const getSubcribedChannels=asyneHandler(async(req,res)=>{
     const {channelId}=req.params
     if(!channelId || !isValidObjectId(channelId)){
         throw new ApiError(400,"Invaild Subscriber!!!")
+    }
+
+    const isexist=await User.findById(channelId)
+    if(!isexist){
+        throw new ApiError(400, "User does not exist!!")
     }
 
     const TotalSubscriptions=await Subscription.find(
