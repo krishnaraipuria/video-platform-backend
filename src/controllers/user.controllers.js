@@ -6,6 +6,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import { deleteFromCloudinary } from "../utils/cloudinary.js";
+import Redis from "ioredis";
 
 const generateAccessAndrefreshAccess= async(userId)=>{
         try{
@@ -60,6 +61,12 @@ const registerUser = asyneHandler( async (req, res) =>{
     {
         throw new ApiError(400,"Avatar file is reuired!");
     }
+
+    //yet to implement email verification using redis;
+    // const EmailVerified=await Redis.get(`emailverification:${email}`)
+    // if(!EmailVerified){
+    //     throw new ApiError(400,"Email not verified")
+    // }
     const user= await User.create({
         fullname,
         avatar: avatar.url,
