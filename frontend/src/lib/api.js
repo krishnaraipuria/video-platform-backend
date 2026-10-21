@@ -98,7 +98,7 @@ function upload(path, method, form, onProgress) {
     };
     xhr.send(form);
   });
-}
+}}
 
 const qs = (o = {}) => {
   const s = new URLSearchParams(Object.entries(o).filter(([, v]) => v !== undefined && v !== "" && v !== null)).toString();

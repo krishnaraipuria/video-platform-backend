@@ -24,6 +24,11 @@ Explore the API documentation or import the Postman collection to test the endpo
 
 **Note:** Protected endpoints may require authentication. Some requests also require valid user, video, comment, or playlist IDs.
 
+**## Frontend & UI Design**
+
+The frontend is built with **React, Vite, and Tailwind CSS**, using the [YouTube UI Clone Design from Figma Community](https://www.figma.com/design/mUE4mzxkNjauvVl0jKThbZ/YouTube-UI-Clone-Design--Community-?t=52qqHqHG73EpiFzT-0) as the UI design reference.
+
+
 ## Overview
 
 This backend powers a modern video-sharing platform with user accounts, content management, social interactions, and analytics. It uses Express.js, MongoDB, and Mongoose for API development, JWT-based authentication for access control, and Cloudinary for media storage.
