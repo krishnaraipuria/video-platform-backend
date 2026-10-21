@@ -82,10 +82,10 @@ const publishvideo=asyneHandler(async(req,res)=>{
     }
     const videoFile=await uploadOnCloudinary(videofileLocalPath)
     const thumbnail=await uploadOnCloudinary(thumbnailLocalPath)
-    if(!videoFile.url){
+    if(!videoFile?.url){
         throw new ApiError(500,"Failed to upload video file")
     }
-    if(!thumbnail.url){
+    if(!thumbnail?.url){
         throw new ApiError(500,"Failed to upload thumbnail")
     }
     const video=await Video.create({

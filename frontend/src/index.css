@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+@theme {
+  --color-yt-bg: #181818;
+  --color-yt-panel: #212121;
+  --color-yt-hover: #303030;
+  --color-yt-line: #3f3f3f;
+  --color-yt-red: #cc0000;
+  --color-yt-sub: #aaaaaa;
+  --font-sans: "Roboto", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+}
+
+html, body, #root { min-height: 100%; }
+body { background: var(--color-yt-bg); color: #fff; font-family: var(--font-sans); }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: #4a4a4a; border-radius: 8px; }
+:focus-visible { outline: 2px solid #3ea6ff; outline-offset: 2px; }
+
+.input { width: 100%; background: #121212; border: 1px solid var(--color-yt-line); border-radius: 4px; padding: 10px 12px; color: #fff; }
+.input:focus { border-color: #3ea6ff; outline: none; }
+.btn { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 8px 16px; font-size: 14px; font-weight: 500; background: var(--color-yt-hover); transition: background .15s; }
+.btn:hover:not(:disabled) { background: #3f3f3f; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn-red { background: var(--color-yt-red); border-radius: 2px; text-transform: uppercase; letter-spacing: .02em; }
+.btn-red:hover:not(:disabled) { background: #e00000; }
+.btn-white { background: #fff; color: #000; }
+.btn-white:hover:not(:disabled) { background: #e5e5e5; }
+.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
