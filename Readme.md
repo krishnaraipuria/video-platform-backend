@@ -35,16 +35,21 @@ routes to the Vite entry point, otherwise refreshing a route such as `/login`
 returns a 404.
 
 The repository includes [`render.yaml`](./render.yaml) with the required static
-site rewrite. If the existing Render service is configured manually, add this
-rule under **Redirects/Rewrites** instead:
+site rewrite. The current frontend service uses `frontend` as its root
+directory, so its Render settings should be:
+
+- **Root Directory:** `frontend`
+- **Build Command:** `npm ci && npm run build`
+- **Publish Directory:** `dist`
+
+If the existing Render service is configured manually, add this rule under
+**Redirects/Rewrites**:
 
 | Action | Source | Destination |
 |---|---|---|
 | Rewrite | `/*` | `/index.html` |
 
-For a service whose root directory is the `frontend` folder, use `npm ci` as
-the build command, `dist` as the publish directory, and add the same rewrite
-rule. Redeploy the frontend after saving the configuration.
+Redeploy the frontend after saving the configuration.
 
 
 ## Overview
