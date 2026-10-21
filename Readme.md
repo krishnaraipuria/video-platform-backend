@@ -24,9 +24,27 @@ Explore the API documentation or import the Postman collection to test the endpo
 
 **Note:** Protected endpoints may require authentication. Some requests also require valid user, video, comment, or playlist IDs.
 
-**## Frontend & UI Design**
+## Frontend & UI Design
 
 The frontend is built with **React, Vite, and Tailwind CSS**, using the [YouTube UI Clone Design from Figma Community](https://www.figma.com/design/mUE4mzxkNjauvVl0jKThbZ/YouTube-UI-Clone-Design--Community-?t=52qqHqHG73EpiFzT-0) as the UI design reference.
+
+### Frontend Deployment on Render
+
+The frontend uses React Router's browser history. Render must rewrite client-side
+routes to the Vite entry point, otherwise refreshing a route such as `/login`
+returns a 404.
+
+The repository includes [`render.yaml`](./render.yaml) with the required static
+site rewrite. If the existing Render service is configured manually, add this
+rule under **Redirects/Rewrites** instead:
+
+| Action | Source | Destination |
+|---|---|---|
+| Rewrite | `/*` | `/index.html` |
+
+For a service whose root directory is the `frontend` folder, use `npm ci` as
+the build command, `dist` as the publish directory, and add the same rewrite
+rule. Redeploy the frontend after saving the configuration.
 
 
 ## Overview
@@ -166,4 +184,3 @@ The server will start using the configured port.
 ## Future Improvements
 
 The backend will continue to evolve with further improvements to API performance, scalability, caching, rate limiting, and system design.
-
