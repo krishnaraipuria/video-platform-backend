@@ -35,9 +35,12 @@ const FALLBACK = {
 
 async function parse(res) {
   const text = await res.text();
-  try { return JSON.parse(text); } catch { // HTML error page}
-  const m = text.match(/Error:\s*([^<\n]+)/);
-  return { message: m ? m[1].trim() : "" };
+  try {
+    return JSON.parse(text);
+  } catch {
+    const m = text.match(/Error:\s*([^<\n]+)/);
+    return { message: m ? m[1].trim() : "" };
+  }
 }
 
 let refreshing = null;
@@ -98,13 +101,12 @@ function upload(path, method, form, onProgress) {
     };
     xhr.send(form);
   });
-}}
+}
 
 const qs = (o = {}) => {
   const s = new URLSearchParams(Object.entries(o).filter(([, v]) => v !== undefined && v !== "" && v !== null)).toString();
   return s ? `?${s}` : "";
 };
-
 export const api = {
 
   login: (b) => request("/users/login", { method: "POST", body: b }),
