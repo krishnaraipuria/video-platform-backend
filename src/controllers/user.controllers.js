@@ -229,7 +229,7 @@ const changeCurrentPassword = asyneHandler(async(req,res)=>{
 })
 const getCurrentUser=asyneHandler(async(req,res)=>{
     return res.status(200).json(
-        200,req.user,"Current user details!!"
+        new ApiResponse(200,req.user,"Current user details!!")
     )
 })
 

@@ -5,9 +5,10 @@ import { loginUser } from "../controllers/user.controllers.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { logoutUser } from "../controllers/user.controllers.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
-
+import {rateLimiterSlidingWindowLog} from "../middlewares/ratelimiter.middleware.js"
 import {refreshAccessToken} from "../controllers/user.controllers.js";
 const router = Router()
+
 
 router.route("/login").post(
     loginUser
