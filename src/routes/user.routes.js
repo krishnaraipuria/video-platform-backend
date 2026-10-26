@@ -5,10 +5,15 @@ import { loginUser } from "../controllers/user.controllers.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { logoutUser } from "../controllers/user.controllers.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
-import {rateLimiterSlidingWindowLog} from "../middlewares/ratelimiter.middleware.js"
+import { createRateLimiter } from "../middlewares/ratelimiter.middleware.js"
 import {refreshAccessToken} from "../controllers/user.controllers.js";
 const router = Router()
 
+router.use(createRateLimiter({
+    windowMs: 60_000,
+    maxRequests: 7,
+    keyPrefix: "users"
+}));
 
 router.route("/login").post(
     loginUser

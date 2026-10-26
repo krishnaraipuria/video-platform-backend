@@ -5,8 +5,6 @@ import crypto from "crypto";
 
 //using sliding window log algorithm for rate limiting;
 
-const windowMs = 60_000;
-const maxRequests = 120;
 
 const rateLimitScript = `
 local key = KEYS[1]
@@ -32,12 +30,15 @@ else
 end
 `
 
-export const rateLimiterSlidingWindowLog=asyneHandler(async(req,_,next)=>{
+export const createRateLimiter = (options = {}) => asyneHandler(async(req,_,next)=>{
+    const windowMs = options.windowMs ?? req.app.get('rateLimitWindowMs') ?? 60_000;
+    const maxRequests = options.maxRequests ?? req.app.get('rateLimitMaxRequests') ?? 100;
+
     const clientIP = req.ip || req.connection.remoteAddress;
     if(!clientIP){
         throw new ApiError(400,"Unable to determine client IP address!")
     }
-    const redisKey = `rate_limit:${clientIP}`;
+    const redisKey = `rate_limit:${options.keyPrefix ?? "global"}:${clientIP}`;
 
     //using redis server time;
     const redisTime = await redis.time();
@@ -66,4 +67,6 @@ export const rateLimiterSlidingWindowLog=asyneHandler(async(req,_,next)=>{
         throw new ApiError(429,"Too many requests, please try again later.")
     }
     next();
-});
+    });
+
+export const rateLimiterSlidingWindowLog = createRateLimiter();
