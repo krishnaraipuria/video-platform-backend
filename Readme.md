@@ -1,6 +1,6 @@
-# Video Platform Backend
+# VideoTube - Backend-Focused Video-Sharing Platform
 
-A backend-focused REST API for a video-sharing platform built with **Node.js, Express.js, MongoDB, Mongoose, JWT, Multer, and Cloudinary**. It provides authentication, media uploads, video publishing, social interactions, playlists, subscriptions, watch history, creator dashboard data, and MongoDB aggregation queries.
+A backend-focused REST API for a video-sharing platform built with **Node.js, Express.js, MongoDB, Mongoose, Redis, JWT, Multer, and Cloudinary**. It provides authentication, email verification, Redis-backed rate limiting, media uploads, video publishing, social interactions, playlists, subscriptions, watch history, creator dashboard data, and MongoDB aggregation queries.
 
 ## Live Demo & Resources
 
@@ -9,7 +9,6 @@ A backend-focused REST API for a video-sharing platform built with **Node.js, Ex
 - **API Base URL:** [`https://video-platform-backend-z1p6.onrender.com/api/v1`](https://video-platform-backend-z1p6.onrender.com/api/v1)
 - **API Documentation:** [Explore the Postman API Docs](https://documenter.getpostman.com/view/54475238/2sBYHQ23Go)
 - **Postman Collection:** [Import the collection from this repository](./postman/video-backend.postman_collection.json)
-- **Source Code:** [GitHub Repository](https://github.com/krishnaraipuria/video-platform-backend)
 
 > **Deployment note:** The backend is hosted on Render's free tier. After a period of inactivity, the first request may take about a minute while the service wakes up.
 
@@ -22,6 +21,20 @@ A backend-focused REST API for a video-sharing platform built with **Node.js, Ex
 - Password updates and secure password hashing with bcrypt.
 - Account details, avatar, and cover image updates.
 - Public channel/profile details and user watch history.
+- Email verification using Redis-backed, time-limited OTPs and Resend for email delivery.
+
+> **Email verification status:** The verification flow is implemented. End-to-end testing with arbitrary recipient addresses is pending because a verified sending domain has not yet been configured with Resend.
+
+### Rate Limiting & API Protection
+
+Implemented a custom **Redis-backed Sliding Window Log rate limiter** to prevent excessive API requests and protect endpoints from abuse.
+
+- **Global limit:** 100 requests per IP per rolling 60 seconds across `/api/v1`.
+- **Users route limit:** 7 requests per IP per rolling 60 seconds across `/api/v1/users`. Both global and users-specific limits apply to these routes.
+- **How it works:** Redis Sorted Sets store request timestamps. A Lua script removes expired entries, counts recent requests, and records allowed requests atomically. Requests exceeding the limit receive `429 Too Many Requests`.
+- **Why this algorithm?** Unlike a fixed-window counter, it tracks requests over a continuously moving time window, helping prevent sudden bursts around window boundaries.
+
+**Further Reading:** [ByteByteGo — Design a Rate Limiter](https://bytebytego.com/courses/system-design-interview/design-a-rate-limiter)
 
 ### Video & Media APIs
 
@@ -53,11 +66,9 @@ A backend-focused REST API for a video-sharing platform built with **Node.js, Ex
 ## API Endpoint Reference
 
 All paths below are **relative to the API base URL**:
-
 ```text
 https://video-platform-backend-z1p6.onrender.com/api/v1
 ```
-
 For example, `GET /videos/:videoId` becomes `GET https://video-platform-backend-z1p6.onrender.com/api/v1/videos/:videoId`.
 
 ### Health Check
@@ -82,6 +93,30 @@ For example, `GET /videos/:videoId` becomes `GET https://video-platform-backend-
 | `PATCH` | `/users/update-avatar` | Update the profile avatar |
 | `PATCH` | `/users/cover-image` | Update the channel cover image |
 
+### Email Verification
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `POST` | `/email-verification/emailsend` | Send a 6-digit verification code to the supplied email address |
+| `POST` | `/email-verification/emailverify` | Verify the email using the supplied code |
+
+Both endpoints are relative to the API base URL. The verification code expires after 5 minutes; a successful verification status is stored in Redis for 10 minutes.
+
+**Send verification code** — `POST /email-verification/emailsend`
+```json
+{
+  "email": "user@example.com"
+}
+```
+
+**Verify email** — `POST /email-verification/emailverify`
+```json
+{
+  "email": "user@example.com",
+  "verificationCode": "123456"
+}
+```
+
 ### Videos
 
 | Method | Endpoint | Purpose |
@@ -94,11 +129,9 @@ For example, `GET /videos/:videoId` becomes `GET https://video-platform-backend-
 | `PATCH` | `/videos/toggle/publish/:videoId` | Toggle a video's published status |
 
 Example feed request:
-
 ```http
 GET /videos/?page=1&limit=5&query=javascript&sortBy=createdAt&sortType=desc
 ```
-
 The upload endpoint accepts `multipart/form-data` with `title`, `description`, `videoFile`, and `thumbnail` fields.
 
 ### Comments
@@ -182,12 +215,13 @@ Some requests require valid user, video, comment, playlist, or tweet IDs. File-u
 | Database & ODM | MongoDB, Mongoose |
 | Authentication & Security | JSON Web Tokens (JWT), bcrypt |
 | File Processing & Media | Multer, Cloudinary |
+| Email Delivery | Resend |
+| Rate Limiting & Shared State | Redis, Sliding Window Log |
 | Frontend | React, Vite, Tailwind CSS |
 | API Testing & Developer Tools | Postman, Git, GitHub, Nodemon, Prettier |
 | Deployment | Render |
 
 ## Project Structure
-
 ```text
 video-platform-backend/
 ├── src/
@@ -208,7 +242,6 @@ video-platform-backend/
 ├── package.json
 └── Readme.md
 ```
-
 ## Local Setup
 
 ### Prerequisites
@@ -216,73 +249,48 @@ video-platform-backend/
 - Node.js and npm
 - A MongoDB connection string
 - A Cloudinary account and API credentials
+- A Redis instance and connection URL
+- A Resend account and API key for email verification
 
 ### 1. Clone the repository
-
 ```bash
 git clone https://github.com/krishnaraipuria/video-platform-backend.git
+
 cd video-platform-backend
 ```
-
 ### 2. Install dependencies
-
 ```bash
 npm install
 ```
-
 ### 3. Configure environment variables
 
 Create a `.env` file in the project root and set the values for your local environment:
-
 ```env
 PORT=8000
-
 MONGODB_URI=your_mongodb_connection_string
 CORS_ORIGIN=your_allowed_origin
-
 ACCESS_TOKEN_SECRET=your_access_token_secret
 ACCESS_TOKEN_EXPIRY=your_access_token_expiry
-
 REFRESH_TOKEN_SECRET=your_refresh_token_secret
 REFRESH_TOKEN_EXPIRY=10d
-
 CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
 CLOUDINARY_API_KEY=your_cloudinary_api_key
 CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+REDIS_URL=your_redis_connection_url
+RESEND_API_KEY=your_resend_key
 ```
-
 Replace the placeholders with your own values. Never commit your `.env` file or expose credentials in the repository.
 
 ### 4. Start the backend
-
 ```bash
 npm run dev
 ```
-
 The server starts on the port configured in your environment.
 
 ## Frontend & UI Design
 
 The frontend is built with **React, Vite, and Tailwind CSS**, using the [YouTube UI Clone Design from Figma Community](https://www.figma.com/design/mUE4mzxkNjauvVl0jKThbZ/YouTube-UI-Clone-Design--Community-?t=52qqHqHG73EpiFzT-0) as the UI design reference.
 
-### Frontend Deployment on Render
-
-The frontend uses React Router's browser history. Render must rewrite client-side routes to the Vite entry point, otherwise refreshing a route such as `/login` returns a 404.
-
-The repository includes [`frontend/render.yaml`](./frontend/render.yaml) with the required static site rewrite. The current frontend service uses `frontend` as its root directory, so its Render settings should be:
-
-- **Root Directory:** `frontend`
-- **Build Command:** `npm ci && npm run build`
-- **Publish Directory:** `dist`
-
-If the existing Render service is configured manually, add this rule under **Redirects/Rewrites**:
-
-| Action | Source | Destination |
-|---|---|---|
-| Rewrite | `/*` | `/index.html` |
-
-Redeploy the frontend after saving the configuration.
-
 ## Future Improvements
 
-Planned backend improvements include Redis-based caching, API rate limiting, and further performance and scalability work.
+Planned backend improvements include Redis-based caching, automated rate-limiter tests, and further performance and scalability work.
